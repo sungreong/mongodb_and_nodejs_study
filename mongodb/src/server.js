@@ -3,9 +3,8 @@ const app = express();
 const mongoose = require('mongoose')
 // shell에서 user.update find와 비슷한 개념이라고 보면 된다고 함.
 const { userRouter } = require("./routes/userRoute")
-
-const MONGO_URL = 'mongodb+srv://admin:admin1!1@cluster0.rcubev9.mongodb.net/BlogService?retryWrites=true&w=majority'
-
+var db_config = require("./../db-config.json")
+let MONGO_URL = `mongodb+srv://${db_config.id}:${db_config.pw}@cluster0.rcubev9.mongodb.net/BlogService?retryWrites=true&w=majority`
 const server = async () => {
     try {
         await mongoose.connect(MONGO_URL);
