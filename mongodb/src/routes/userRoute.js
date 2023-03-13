@@ -1,7 +1,9 @@
 const { Router } = require("express");
 const userRouter = Router()
-const { User } = require("./../models/User");
+
 const mongoose = require('mongoose')
+// const { User } = require("./../models/User");
+const { User } = require("./../models");
 userRouter.get("", async (req, res) => {
     try {
         const users = await User.find({});
@@ -75,8 +77,8 @@ userRouter.put("/:userId", async (req, res) => {
         // if (name) updateBody.name = name
         // const user = await User.findByIdAndUpdate(userId, updateBody, { new: true })
         let user = await User.findById(userId)
-        if(age) user.age = age;
-        if(name) user.name = name;
+        if (age) user.age = age;
+        if (name) user.name = name;
         await user.save()
         return res.send({ user })
     } catch (err) {
