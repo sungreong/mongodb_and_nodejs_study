@@ -54,7 +54,9 @@ blogRouter.get("/", async (req, res) => {
     try {
         // comments는 스키마에 없음.
         // 가상의 키 필요함.
-        const blogs = await Blog.find({}).limit(50).populate([{ path: "user" }, { path: "comments", populate: { path: "user" } }]);
+        let { page } = req.query
+        page = parseInt(page)
+        const blogs = await Blog.find({}).sort({ updatedAt: -1 }).skip(page * 3).limit(3).populate([{ path: "user" }, { path: "comments", populate: { path: "user" } }]);
         // Blog에 user라는 reference를 추가함.
         return res.send({ blogs });
 

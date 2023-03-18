@@ -39,6 +39,7 @@ commentRouter.post("/", async (req, res) => {
             // 1, 2번 쓸 때 10번,20번 읽기 작업이 필요할 수 있음.
             Blog.updateOne({ _id: blogId }, { $push: { comments: comment } })
         ])
+        // await comment.save()
         return res.send({ comment })
     } catch (err) {
         return res.status(400).send({ err: err.message })
