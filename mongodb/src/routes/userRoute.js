@@ -3,7 +3,7 @@ const userRouter = Router()
 
 const mongoose = require('mongoose')
 // const { User } = require("./../models/User");
-const { User } = require("./../models");
+const { User, Blog, Comment } = require("./../models");
 userRouter.get("", async (req, res) => {
     try {
         const users = await User.find({});
@@ -52,7 +52,18 @@ userRouter.delete("/:userId", async (req, res) => {
     try {
         const { userId } = req.params;
         if (!mongoose.isValidObjectId(userId)) return res.status(400).send({ err: "invalid userId" })
-        const user = await User.findOneAndDelete({ _id: userId })
+        // const user = await User.findOneAndDelete({ _id: userId })
+        // await Blog.deleteMany({ "user._id": userId })
+        // await Blog.updateMany({ "comments.user": userId }, { $pull: { comments: { user: userId } } })
+        // await Comment.deleteMany({ "user": userId })
+        const [user] = await Promise.all([
+            // 병렬로 가능함.
+            User.findOneAndDelete({ _id: userId }),
+            Blog.deleteMany({ "user._id": userId }),
+            Blog.updateMany({ "comments.user": userId }, { $pull: { comments: { user: userId } } }),
+            Comment.deleteMany({ "user": userId })
+
+        ])
         return res.send({ user })
     } catch (err) {
         console.log({ err })
@@ -78,7 +89,34 @@ userRouter.put("/:userId", async (req, res) => {
         // const user = await User.findByIdAndUpdate(userId, updateBody, { new: true })
         let user = await User.findById(userId)
         if (age) user.age = age;
-        if (name) user.name = name;
+        console.log({ name }, req.body)
+        if (name) {
+
+            user.name = name;
+            // 하나의 유저가 여러 블로그 수정 가능 
+            // 
+            // await Blog.updateMany({ "user._id": userId }, { "user.name": name })
+            // 한명이 여러 후기 작성할 수 있으니 복잡함.
+            // comment에 여러개가 있을텐데 그것만 수정해야 함.
+            // arrayFilter 
+            // await Blog.updateMany(
+            //     {},
+            //     // { "comment.$[comment].users.$[user].name": `$(name.first) $(name.last)` },
+            //     { "comments.$[comment].userFullName": `${name.first} ${name.last}` },
+            //     { arrayFilters: [{ "comment.user": userId }] })
+            await Promise.all([
+                Blog.updateMany({ "user._id": userId }, { "user.name": name }),
+                // 한명이 여러 후기 작성할 수 있으니 복잡함.
+                // comment에 여러개가 있을텐데 그것만 수정해야 함.
+                // arrayFilter 
+                Blog.updateMany(
+                    {},
+                    // { "comment.$[comment].users.$[user].name": `$(name.first) $(name.last)` },
+                    { "comments.$[comment].userFullName": `${name.first} ${name.last}` },
+                    { arrayFilters: [{ "comment.user": userId }] })
+            ])
+
+        }
         await user.save()
         return res.send({ user })
     } catch (err) {

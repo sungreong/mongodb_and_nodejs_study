@@ -31,7 +31,7 @@ blogRouter.post("/", async (req, res) => {
         if (!user) {
             return res.status(400).send({ err: "user does not ecist" })
         }
-        let blog = new Blog({ ...req.body, user: userId })
+        let blog = new Blog({ ...req.body, user })
         await blog.save();
         return res.send({ blog });
     } catch (err) {
@@ -39,9 +39,23 @@ blogRouter.post("/", async (req, res) => {
         return res.status(500).send({ err: err.message })
     }
 });
+// blogRouter.get("/", async (req, res) => {
+//     try {
+//         // const blogs = await Blog.find({})
+//         const blogs = await Blog.find({}).limit(20);
+//         return res.send({ blogs });
+
+//     } catch (err) {
+//         console.log({ err })
+//         return res.status(500).send({ err: err.message })
+//     }
+// });
 blogRouter.get("/", async (req, res) => {
     try {
-        const blogs = await Blog.find({})
+        // comments는 스키마에 없음.
+        // 가상의 키 필요함.
+        const blogs = await Blog.find({}).limit(50).populate([{ path: "user" }, { path: "comments", populate: { path: "user" } }]);
+        // Blog에 user라는 reference를 추가함.
         return res.send({ blogs });
 
     } catch (err) {
