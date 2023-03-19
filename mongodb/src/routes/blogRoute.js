@@ -2,7 +2,7 @@ const { Router } = require("express");
 const blogRouter = Router();
 // const { Blog } = require("./../models/Blog");
 // const { User } = require("./../models/User")
-const { Blog, User } = require("./../models");
+const { Blog, User, Comment } = require("./../models");
 
 // model을 가져온다는 뜻
 const { isValidObjectId } = require('mongoose')
@@ -56,7 +56,8 @@ blogRouter.get("/", async (req, res) => {
         // 가상의 키 필요함.
         let { page } = req.query
         page = parseInt(page)
-        const blogs = await Blog.find({}).sort({ updatedAt: -1 }).skip(page * 3).limit(3).populate([{ path: "user" }, { path: "comments", populate: { path: "user" } }]);
+        const blogs = await Blog.find({}).sort({ updatedAt: -1 }).skip(page * 3).limit(3)
+        // .populate([{ path: "user" }, { path: "comments", populate: { path: "user" } }]);
         // Blog에 user라는 reference를 추가함.
         return res.send({ blogs });
 
@@ -72,6 +73,9 @@ blogRouter.get("/:blogId", async (req, res) => {
             return res.status(400).send({ err: "blogId is invalid" })
         }
         const blog = await Blog.findOne({ _id: blogId })
+        // const commentCount = await Comment.find({ blog: blogId }).countDocuments();
+        // 내장하는 방법
+
         return res.send({ blog })
 
     } catch (err) {

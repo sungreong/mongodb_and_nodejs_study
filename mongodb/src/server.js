@@ -38,11 +38,9 @@ const server = async () => {
         })
         // listen 이후에 서버가 켜짐
         app.listen(3000, async () => {
-            // console.time("inser time :")
-            // await generateFakeData(20, 10, 10);
-            // await generateFakeData(10, 5, 10);
-            // await generateFakeData(10, 5, 10);
-            // console.timeEnd("inser time :")
+            // console.time("insert time :")
+            // await generateFakeData(10, 3, 20);
+            // console.timeEnd("insert time :")
             console.log("server listening on port 3000")
             // 트패릭 부하 상태를 방지하기 위해 loop 사용 
             // 한 iter에는 병령이지만 루피에서는 병령이 아님 

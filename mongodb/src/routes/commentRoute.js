@@ -29,17 +29,27 @@ commentRouter.post("/", async (req, res) => {
         ])
         if (!blog || !user) return res.status(400).send({ err: "blog or user does not exist" })
         if (!blog.islive) return res.status(400).send({ err: "blog is not available" })
-        const comment = new Comment({ content, user, userFullName: `${user.name.first} ${user.name.last}`, blog }); // .limit(5)
+        const comment = new Comment({ content, user, userFullName: `${user.name.first} ${user.name.last}`, blog: blogId }); // .limit(5)
 
         // 개선
+        // await Promise.all([
+        //     comment.save(),
+        //     // DB에 일부 과부하를 주긴 함.
+        //     // 100% 이것만 하라는 것은 아님. 
+        //     // 1, 2번 쓸 때 10번,20번 읽기 작업이 필요할 수 있음.
+        //     Blog.updateOne({ _id: blogId }, { $push: { comments: comment } })
+        // ])
+        // 자식 문서가 아니라 가공 문서를 내장하는 방식
+        blog.commentsCount++;
+        // blog안에 comments를 넣었는데 또 comment를 넣고 무한 루프 발생
+        blog.comments.push(comment);
+        if (blog.commentsCount > 3) blog.comments.shift();
+        // shift : a.shift 
         await Promise.all([
             comment.save(),
-            // DB에 일부 과부하를 주긴 함.
-            // 100% 이것만 하라는 것은 아님. 
-            // 1, 2번 쓸 때 10번,20번 읽기 작업이 필요할 수 있음.
-            Blog.updateOne({ _id: blogId }, { $push: { comments: comment } })
+            blog.save()
+            // Blog.updateOne({ _id: blogId }, { $inc: { commentsCount: 1 } })
         ])
-        // await comment.save()
         return res.send({ comment })
     } catch (err) {
         return res.status(400).send({ err: err.message })
@@ -49,9 +59,14 @@ commentRouter.post("/", async (req, res) => {
 
 commentRouter.get('/', async (req, res) => {
     try {
+
         const { blogId } = req.params;
+        let { page = 0 } = req.query
+        page = parseInt(page);
+
         if (!isValidObjectId(blogId)) return res.status(400).send({ err: "blogId is invalid" })
-        const comments = await Comment.find({ blog: blogId })
+        // pagination 작업 (indexling 필요)
+        const comments = await Comment.find({ blog: blogId }).sort({ createdAt: -1 }).skip(page * 3).limit(3)
         return res.send({ comments });
     }
     catch (err) {

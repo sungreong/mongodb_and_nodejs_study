@@ -10,5 +10,7 @@ const CommentSchema = new Schema(
     { timestamps: true }
 );
 
+// indexing 해주는 작업
+CommentSchema.index({ blog: 1, createdAt: -1 })
 const Comment = model('comment', CommentSchema)
 module.exports = { Comment, CommentSchema };

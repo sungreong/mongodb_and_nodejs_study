@@ -37,6 +37,9 @@ generateFakeData = async (userCount, blogsPerUser, commentsPerUser) => {
         users.map((user) => {
             for (let i = 0; i < blogsPerUser; i++) {
                 blogs.push(
+                    // API 사용
+                    // axios에서 사용하기 때문에 서버가 켜져 있지 않으면 작동 안함.
+                    // app.listen 이후에 서버가 켜진느 것임.
                     axios.post(`${URI}/blog`, {
                         title: faker.lorem.words(),
                         content: faker.lorem.paragraphs(),
@@ -46,13 +49,14 @@ generateFakeData = async (userCount, blogsPerUser, commentsPerUser) => {
                 );
             }
         });
-
+        // API에 return 값이 저장됨
         let newBlogs = await Promise.all(blogs);
         console.log(`${newBlogs.length} fake blogs generated!`);
 
         users.map((user) => {
             for (let i = 0; i < commentsPerUser; i++) {
                 let index = Math.floor(Math.random() * blogs.length);
+                // API를 통해 적재함.
                 comments.push(
                     axios.post(`${URI}/blog/${newBlogs[index].data.blog._id}/comment`, {
                         content: faker.lorem.sentence(),

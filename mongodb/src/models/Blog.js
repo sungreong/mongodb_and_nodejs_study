@@ -14,6 +14,7 @@ const BlogSchema = new Schema({
             last: { type: String, required: true },
         },
     },
+    commentsCount: { type: Number, default: 0, required: true, },
     comments: [CommentSchema],
 
 },
@@ -21,7 +22,7 @@ const BlogSchema = new Schema({
 );
 
 // index를 추가하고 싶은 경우 (복합키 포함) 
-BlogSchema.index({ 'user._id': 1, updatedAt: 1 }, { unique: true })
+// BlogSchema.index({ 'user._id': 1, updatedAt: 1 }, { unique: true }) key 중복
 // BlogSchema.index({ updatedAt: 1 })
 // BlogSchema.index({ updatedAt: 1 })
 // text index collection 당 1개씩 만들고 싶을 때
