@@ -18,10 +18,10 @@ const { generateFakeData } = require("../faker2");
 
 const server = async () => {
     try {
-        const { id, pw, service, PORT } = process.env;
+        const { id, pw, service, port } = process.env;
         let MONGO_URL = `mongodb+srv://${id}:${pw}@cluster0.rcubev9.mongodb.net/${service}?retryWrites=true&w=majority`
         if (!MONGO_URL) throw new Error("MONGO_URL is not defined")
-        if (!PORT) throw new Error("PORT is not defined")
+        if (!port) throw new Error("PORT is not defined")
         console.log({ MONGO_URL })
         await mongoose.connect(MONGO_URL);
         // mongoose.set("debug", true)
@@ -44,11 +44,11 @@ const server = async () => {
             }
         })
         // listen 이후에 서버가 켜짐
-        app.listen(PORT, async () => {
+        app.listen(port, async () => {
             // console.time("insert time :")
             // await generateFakeData(10, 3, 20);
             // console.timeEnd("insert time :")
-            console.log(`server listening on port ${PORT}`)
+            console.log(`server listening on port ${port}`)
             // 트패릭 부하 상태를 방지하기 위해 loop 사용 
             // 한 iter에는 병령이지만 루피에서는 병령이 아님 
             // for (let i = 0; i < 10; i++) {
