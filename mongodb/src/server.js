@@ -18,8 +18,8 @@ const { generateFakeData } = require("../faker2");
 
 const server = async () => {
     try {
-        const { id, pw } = process.env;
-        let MONGO_URL = `mongodb+srv://${id}:${pw}@cluster0.rcubev9.mongodb.net/BlogService?retryWrites=true&w=majority`
+        const { id, pw, service } = process.env;
+        let MONGO_URL = `mongodb+srv://${id}:${pw}@cluster0.rcubev9.mongodb.net/${service}?retryWrites=true&w=majority`
         if (!MONGO_URL) throw new Error("MONGO_URL is not defined")
         console.log({ MONGO_URL })
         await mongoose.connect(MONGO_URL);
